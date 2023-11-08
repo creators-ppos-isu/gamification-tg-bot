@@ -9,11 +9,15 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from handlers.start.router import start_router
+from handlers.admin.router import admin_router
 
 # Bot token can be obtained via https://t.me/BotFather
 
 dp = Dispatcher(storage=MemoryStorage())
-dp.include_router(start_router)
+dp.include_routers(
+    start_router,
+    admin_router
+)
 
 
 async def main() -> None:
@@ -23,7 +27,11 @@ async def main() -> None:
         await Tortoise.init(
             db_url=f'sqlite://{settings.DB_URL}',
             modules={
-                'models': ['db.models.user']
+                'models': [
+                    'db.models.user',
+                    'db.models.task',
+                    'db.models.completed_task'
+                ]
             }
         )
         await Tortoise.generate_schemas()
