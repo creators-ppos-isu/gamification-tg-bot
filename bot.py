@@ -30,7 +30,6 @@ async def main() -> None:
                 'models': [
                     'db.models.user',
                     'db.models.task',
-                    'db.models.completed_task'
                 ]
             }
         )

@@ -9,5 +9,7 @@ class User(Model):
     is_admin = fields.BooleanField(default=False)
     score = fields.IntField(default=0)
 
+    completed_task = fields.ManyToManyField('models.Task')
+
     def __str__(self): 
         return f'{self.first_name} {self.last_name}'
