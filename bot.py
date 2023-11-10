@@ -11,6 +11,8 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from handlers.start.router import start_router
 from handlers.admin.router import admin_router
 
+from db.models.task import create_default_tasks
+
 # Bot token can be obtained via https://t.me/BotFather
 
 dp = Dispatcher(storage=MemoryStorage())
@@ -34,6 +36,7 @@ async def main() -> None:
             }
         )
         await Tortoise.generate_schemas()
+        await create_default_tasks()
 
         await bot.set_my_commands(
             commands=[

@@ -58,7 +58,12 @@ async def proccess_full_name(message: Message, state: FSMContext):
 @start_router.message(F.text == 'Задания')
 @prefetch_user
 async def send_tasks(message: Message, user: User):
-    await message.answer('Задания')
+    completed_tasks = await user.completed_task.all()
+    content = [
+        'Задания\n',
+        *map(str, completed_tasks)
+    ]
+    await message.answer('\n✅ '.join(content))
 
 
 @start_router.message(F.text == 'Профиль')

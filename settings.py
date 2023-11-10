@@ -9,3 +9,5 @@ BASE_DIR = Path(__file__).resolve().parent
 DB_URL = BASE_DIR / 'db.sqlite3'
 BOT_TOKEN = getenv("BOT_TOKEN")
 ADMINS = (596546865,)
+DEFAULT_TASKS = (
+)
