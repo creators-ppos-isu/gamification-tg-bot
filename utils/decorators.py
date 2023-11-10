@@ -3,7 +3,7 @@ from tortoise.exceptions import DoesNotExist
 from db.models.user import User
 
 
-def user_required(fn): 
+def prefetch_user(fn): 
     async def wrapper(message: Message):
         try:
             user = await User.get(id=message.from_user.id)
