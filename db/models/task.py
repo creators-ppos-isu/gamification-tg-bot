@@ -2,16 +2,16 @@ from tortoise.models import Model
 from tortoise import fields
 
 
-class Task(Model): 
+class Task(Model):
     id = fields.IntField(pk=True)
     title = fields.CharField(max_length=255)
     score = fields.IntField()
 
     def __str__(self) -> str:
         return f'{self.title}: {self.score} баллов'
-    
 
-async def create_default_tasks(): 
+
+async def create_default_tasks():
     tasks = [
         Task(id=1, title='Вовремя прийти на лекции', score=1),
         Task(id=2, title='Активное участие в Мастер-классе', score=1),
@@ -23,3 +23,4 @@ async def create_default_tasks():
     for task in tasks:
         if not await Task.exists(id=task.id):
             await task.save()
+

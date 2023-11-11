@@ -18,22 +18,22 @@ class SelectTaskCallback(CallbackData, prefix='task'):
 
 
 @admin_router.message(F.web_app_data)
-async def handle_web_app(message: Message): 
+async def handle_web_app(message: Message):
     user_id = message.web_app_data.data
 
-    try: 
+    try:
         user = await User.get(id=user_id)
-    except DoesNotExist: 
+    except DoesNotExist:
         return await message.answer(Error.USER_NOT_FOUND.format(user_id=user_id))
 
     tasks = await Task.all()
 
     builder = InlineKeyboardBuilder()
-    for task in tasks: 
+    for task in tasks:
         builder.button(
-            text=task.title, 
+            text=task.title,
             callback_data=SelectTaskCallback(
-                task_id=task.id, 
+                task_id=task.id,
                 user_id=user.id
             )
         )
@@ -44,13 +44,19 @@ async def handle_web_app(message: Message):
 
 
 @admin_router.callback_query(SelectTaskCallback.filter())
-async def select_task_callback(query: CallbackQuery, callback_data: SelectTaskCallback): 
+async def select_task_callback(query: CallbackQuery, callback_data: SelectTaskCallback):
     task = await Task.get(id=callback_data.task_id)
     user = await User.get(id=callback_data.user_id)
+
+    # Не больше 10 вопросов на лекции
+    if task.id == 4 and await user.completed_task.filter(id=4).count() >= 10:
+        return await query.message.answer(
+            f'Пользователю {user} нельзя добавить задание {task.title} больше 10 раз'
+        )
 
     await user.completed_task.add(task)
     user.score += task.score
     await user.save()
 
     await query.message.answer(f'Успешно добавленно {task.score} баллов пользователю {user} за {task.title}')
-
+    await query.bot.send_message(chat_id=user.id, text=f'Добавленны баллы {task.score} за {task.title}')
