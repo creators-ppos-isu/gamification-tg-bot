@@ -15,7 +15,12 @@ class User(Model):
     is_admin = fields.BooleanField(default=False)
     score = fields.IntField(default=0)
 
-    completed_task = fields.ManyToManyField('models.Task')
+    completed_task = fields.ManyToManyField('models.Task', through='UserTask')
 
-    def __str__(self): 
+    def __str__(self):
         return f'{self.first_name} {self.last_name}'
+
+
+class UserTask(Model):
+    task = fields.ForeignKeyField('models.Task', on_delete=fields.CASCADE)
+    user = fields.ForeignKeyField('models.User', on_delete=fields.CASCADE)

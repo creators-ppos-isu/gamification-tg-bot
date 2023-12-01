@@ -1,3 +1,5 @@
+import logging
+
 from aiogram import Router, F
 from aiogram.types import Message
 from aiogram.filters import CommandStart
@@ -15,7 +17,6 @@ from .messages import (
 )
 from .keyboards import get_main_menu_kb
 
-
 start_router = Router()
 
 
@@ -23,7 +24,7 @@ start_router = Router()
 async def cmd_start(message: Message, state: FSMContext):
     user, created = await User.get_or_create(id=message.from_user.id)
 
-    if created: 
+    if created:
         await state.set_state(RegistrationForm.full_name)
         return await message.answer(Registration.START)
 
@@ -33,10 +34,10 @@ async def cmd_start(message: Message, state: FSMContext):
 
 
 @start_router.message(RegistrationForm.full_name)
-async def proccess_full_name(message: Message, state: FSMContext): 
+async def process_full_name(message: Message, state: FSMContext):
     user = await User.get(id=message.from_user.id)
 
-    try: 
+    try:
         first_name, last_name = message.text.split()
     except ValueError:
         return await message.answer('Ты должен отправить только свои имя и фамилию')
@@ -53,17 +54,19 @@ async def proccess_full_name(message: Message, state: FSMContext):
 
     await message.answer(Registration.COMPLETED, reply_markup=keyboard)
     await state.clear()
+    logging.info(f'New user registered: {user.id}')
 
 
 @start_router.message(F.text == 'Задания')
 @prefetch_user
 async def send_tasks(message: Message, user: User):
     completed_tasks = await user.completed_task.all()
-    content = [
-        'Задания\n',
-        *map(str, completed_tasks)
-    ]
-    await message.answer('\n✅ '.join(content))
+
+    if len(completed_tasks):
+        content = ['Задания\n', *map(str, completed_tasks)]
+        return await message.answer('\n✅ '.join(content))
+
+    return await message.answer('Ты еще не выполнил ни одного задания!')
 
 
 @start_router.message(F.text == 'Профиль')
